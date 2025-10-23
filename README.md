@@ -25,7 +25,7 @@ AWS Account
 ```
 ## Step 1 Configure AWS CLI and Profile:
 
-First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management.
+First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management. 
 
 - Configure the profile:
 ```markdown
@@ -47,6 +47,7 @@ aws sts get-caller-identity --profile demoadmin
 ```
 
 Output:
+
 {
     "UserId": "------",
 
@@ -81,8 +82,9 @@ aws iam attach-group-policy --group-name Operations --policy-arn arn:aws:iam::aw
 ```
 - Security Audit Access for Auditors:
 
-markdown
+```markdown
 aws iam attach-group-policy --group-name Auditors --policy-arn arn:aws:iam::aws:policy/SecurityAudit --profile demoadmin
+```
 
 ## 2.3 Create Users:
 
@@ -105,6 +107,7 @@ Step A: Create Trust Policies
 
 trust-ec2.json
 
+````json
 {
   "Version": "2012-10-17",
   "Statement": [{
@@ -113,9 +116,11 @@ trust-ec2.json
     "Action": "sts:AssumeRole"
   }]
 }
+````
 
 
 trust-lambda.json
+```json
 
 {
   "Version": "2012-10-17",
@@ -125,6 +130,7 @@ trust-lambda.json
     "Action": "sts:AssumeRole"
   }]
 }
+```
 
 
 Step B: Create Roles and Attach Policies
@@ -181,7 +187,7 @@ IAM Credential report is a tool used to access multiple security features enable
 
 i. Run `aws iam generate-credential-report --profile demoadmin` to generate the report.
 
-ii. run `aws iam get-credential-report --profile demoadmin --query "Content" --output text > report.b64` to download the report. 
+ii. Run `aws iam get-credential-report --profile demoadmin --query "Content" --output text > report.b64` to download the report. 
 
 iii. Run `certutil -decode report.b64 credential-report.csv` to decode to CSV.
 
@@ -253,6 +259,7 @@ This listed the findings of Access Analyzer and it identified a S3 bucket that w
 
 ## Step 5. Project Cleanup:
 
+```markdown
 aws iam delete-user --user-name dev1-user --profile demoadmin
 aws iam delete-user --user-name dev2-user --profile demoadmin
 aws iam delete-user --user-name ops1-user --profile demoadmin
@@ -266,5 +273,6 @@ aws iam delete-role --role-name EC2S3ReadRole --profile demoadmin
 aws iam delete-role --role-name LambdaAuditRole --profile demoadmin
 
 aws accessanalyzer delete-analyzer --analyzer-name iam-audit-analyzer --profile demoadmin
+```
 
 
