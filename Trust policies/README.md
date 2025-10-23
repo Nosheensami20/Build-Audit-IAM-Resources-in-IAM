@@ -25,7 +25,7 @@ AWS Account
 ```
 ## Step 1 Configure AWS CLI and Profile:
 
-First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management.
+First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management. 
 
 - Configure the profile:
 ```markdown

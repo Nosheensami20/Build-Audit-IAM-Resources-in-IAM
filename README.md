@@ -28,8 +28,9 @@ AWS Account
 First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management.
 
 - Configure the profile:
-
+```markdown
 aws configure --profile demoadmin
+```
 
 AWS Access Key ID → paste demoadmin’s Access key ID
 
@@ -41,12 +42,16 @@ Output format → json
 
 - Verify the profile:
 
+```markdown
 aws sts get-caller-identity --profile demoadmin
+```
 
 Output:
 {
     "UserId": "------",
+
     "Account": "-----",
+    
     "Arn": "arn:aws:iam::-------:user/demoadmin"
 }
 
@@ -78,7 +83,7 @@ aws iam attach-group-policy --group-name Operations --policy-arn arn:aws:iam::aw
 
 markdown
 aws iam attach-group-policy --group-name Auditors --policy-arn arn:aws:iam::aws:policy/SecurityAudit --profile demoadmin
-```
+
 ## 2.3 Create Users:
 
 ```markdown
@@ -109,6 +114,7 @@ trust-ec2.json
   }]
 }
 
+
 trust-lambda.json
 
 {
@@ -119,6 +125,7 @@ trust-lambda.json
     "Action": "sts:AssumeRole"
   }]
 }
+
 
 Step B: Create Roles and Attach Policies
 
@@ -244,7 +251,7 @@ aws accessanalyzer list-findings --analyzer-arn arn:aws:access-analyzer:ca-centr
 
 This listed the findings of Access Analyzer and it identified a S3 bucket that was publicly accessible. To remediate this, the S3 bucket was removed from being public immediately. In real organization, Access Analyzer is enabled continuously to find any publicaly exposed resources and findings are intergrated into Security Hub or Cloud watch dashboard. For automated remediation, a Lambda function may be added to automatically remove the S3 bucket from being public.    
 
-Step 5. Project Cleanup:
+## Step 5. Project Cleanup:
 
 aws iam delete-user --user-name dev1-user --profile demoadmin
 aws iam delete-user --user-name dev2-user --profile demoadmin
