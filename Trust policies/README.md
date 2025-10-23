@@ -1,12 +1,10 @@
-# Build & Audit IAM Resources in AWS
+## Build and Audit IAM Resources in AWS
 
-This project demonstrates how to **Build and Audit IAM Resources in AWS** using AWS CLI.  
-It is a basic-level IAM environment with users, groups, and roles configured with least privilege access.  
-Security audits are performed using AWS tools like **Credential Reports**, **CloudTrail**, and **Access Analyzer**.   
-It also suggests **remediation measures** taken in response to audit findings to ensure AWS security best practices are followed.
+This project demonstrates how to **Build and Audit IAM Resources in AWS** using AWS CLI. It is a basic-level IAM environment with users, groups, and roles configured with least privilege access. Security audits are performed using AWS tools like **Credential Reports**, **CloudTrail**, and **Access Analyzer**. It also suggests **remediation measures** taken in response to audit findings to ensure AWS security best practices are followed.
 
 ## Architecture Overview
 
+```text
 AWS Account
 │
 ├── IAM
@@ -24,8 +22,8 @@ AWS Account
     ├── CloudTrail (Root Account Activity)
     └── IAM Access Analyzer
 
-
-# Step 1. Configure AWS CLI and Profiles:
+```
+## Step 1 Configure AWS CLI and Profile:
 
 First step was to create an admin user "demoadmin" in AWS console having MFA authentication enabled, and access keys. This admin user had full access to all resources in AWS setup of an organization and instead of using Root account for all operations, admin account shall be used. The admin profile allows us to interact securely with AWS CLI by separating credentials and preparing for IAM management.
 
@@ -35,8 +33,11 @@ aws configure --profile demoadmin
 
 Enter:
 AWS Access Key ID → paste demoadmin’s Access key ID
+
 AWS Secret Access Key → paste demoadmin’s Secret Access Key
+
 Default region → your preferred region (e.g., ca-central-1)
+
 Output format → json
 
 - Verify the profile:
@@ -66,36 +67,32 @@ aws iam create-group --group-name Auditors --profile demoadmin
 - S3 Read Only Access to Developers: 
 
 ```markdown
-
-```aws iam attach-group-policy --group-name Developers --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess --profile demoadmin
+aws iam attach-group-policy --group-name Developers --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess --profile demoadmin
 
 - EC2 Full Access to Operations:
 
 ```markdown
-
-```aws iam attach-group-policy --group-name Operations --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --profile demoadmin
+aws iam attach-group-policy --group-name Operations --policy-arn arn:aws:iam::aws:policy/AmazonEC2FullAccess --profile demoadmin
 
 - Security Audit Access for Auditors:
 
-```markdown
-
-```aws iam attach-group-policy --group-name Auditors --policy-arn arn:aws:iam::aws:policy/SecurityAudit --profile demoadmin
+markdown
+aws iam attach-group-policy --group-name Auditors --policy-arn arn:aws:iam::aws:policy/SecurityAudit --profile demoadmin
 
 ## 2.3 Create Users:
 
 ```markdown
-``` aws iam create-user --user-name dev1-user --profile demoadmin
-``` aws iam create-user --user-name dev2-user --profile demoadmin
-``` aws iam create-user --user-name ops1-user --profile demoadmin
-``` aws iam create-user --user-name auditor-user --profile demoadmin
+aws iam create-user --user-name dev1-user --profile demoadmin
+aws iam create-user --user-name dev2-user --profile demoadmin
+aws iam create-user --user-name ops1-user --profile demoadmin
 
 ## 2.4 Add Users to Groups:
 
 ```markdown
-``` aws iam add-user-to-group --user-name dev1-user --group-name Developers --profile demoadmin
-``` aws iam add-user-to-group --user-name dev2-user --group-name Developers --profile demoadmin
-``` aws iam add-user-to-group --user-name Ops1-user --group-name Operations --profile demoadmin
-``` aws iam add-user-to-group --user-name Auditor-user --group-name Auditors --profile demoadmin
+aws iam add-user-to-group --user-name dev1-user --group-name Developers --profile demoadmin
+aws iam add-user-to-group --user-name dev2-user --group-name Developers --profile demoadmin
+aws iam add-user-to-group --user-name Ops1-user --group-name Operations --profile demoadmin
+aws iam add-user-to-group --user-name Auditor-user --group-name Auditors --profile demoadmin
 
 ## 2.5 Create IAM Roles and attach Policies:
 
@@ -138,29 +135,29 @@ Lastly, we ran some checks with AWS CLI to confirm all the resources we created 
 3.1. Verify Groups
 
 ```markdown
-```aws iam list-groups --profile demoadmin
+aws iam list-groups --profile demoadmin
 
 3.2. Verify Users
 
 ```markdown
-```aws iam list-users --profile demoadmin
+aws iam list-users --profile demoadmin
 
 3.3. Verify Users in Groups
 
 ```markdown
-```aws iam get-group --group-name Developers --profile demoadmin
+aws iam get-group --group-name Developers --profile demoadmin
 aws iam get-group --group-name Ops --profile demoadmin
 aws iam get-group --group-name Auditors --profile demoadmin
 
 3.4. Verify Roles
 
 ```markdown
-```aws iam list-roles --profile demoadmin
+aws iam list-roles --profile demoadmin
 
 3.5. Verify Role Policies
 
 ```markdown
-```aws iam list-attached-role-policies --role-name EC2S3ReadRole --profile demoadmin
+aws iam list-attached-role-policies --role-name EC2S3ReadRole --profile demoadmin
 aws iam list-attached-role-policies --role-name LambdaAuditRole --profile demoadmin
 
 ## Step 4.  Auditing IAM Setup:
@@ -206,7 +203,7 @@ From this information, we can identify if there are any access keys that are old
 ## 4.3 Check Root Account Usage:
 
 ```markdown
-``` aws cloudtrail lookup-events --lookup-attributes AttributeKey=Username,AttributeValue="root" --profile demoadmin
+aws cloudtrail lookup-events --lookup-attributes AttributeKey=Username,AttributeValue="root" --profile demoadmin
 
 The output returned multiple entries including list applications, describe regions, list notifications hub, get environment status. This indicated that root account has been used for daily tasks which is against the best security practices. To correct this, following remediation measures were taken immediately:
 
@@ -218,7 +215,7 @@ The output returned multiple entries including list applications, describe regio
  ## 4.4 Check Overbroad Permissions:
 
 ```markdown
-``` aws iam list-attached-group-policies --group-name Developers --profile demoadmin
+aws iam list-attached-group-policies --group-name Developers --profile demoadmin
 aws iam list-attached-group-policies --group-name Ops --profile demoadmin
 aws iam list-attached-group-policies --group-name Auditors --profile demoadmin
 
@@ -229,12 +226,12 @@ The results showed the policies attached to respective groups as we assigned ear
 IAM Access Analyzer is a cruicial tool in auditing as it scans the AWS account for resources that are accessible publicly and find any misconfigurations. To implement this, we created an Analyzer using the command:
 
 ```markdown
-``` aws accessanalyzer create-analyzer --analyzer-name iam-audit-analyzer --type ACCOUNT --profile demoadmin
+aws accessanalyzer create-analyzer --analyzer-name iam-audit-analyzer --type ACCOUNT --profile demoadmin
 
 List the findings using the command:
 
 ```markdown
-``` aws accessanalyzer list-findings --analyzer-arn arn:aws:access-analyzer:ca-central-1:123456789012:analyzer/iam-audit-analyzer --profile demoadmin
+aws accessanalyzer list-findings --analyzer-arn arn:aws:access-analyzer:ca-central-1:123456789012:analyzer/iam-audit-analyzer --profile demoadmin
 
 This listed the findings of Access Analyzer and it identified a S3 bucket that was publicly accessible. To remediate this, the S3 bucket was removed from being public immediately. In real organization, Access Analyzer is enabled continuously to find any publicaly exposed resources and findings are intergrated into Security Hub or Cloud watch dashboard. For automated remediation, a Lambda function may be added to automatically remove the S3 bucket from being public.    
 
@@ -253,4 +250,5 @@ aws iam delete-role --role-name EC2S3ReadRole --profile demoadmin
 aws iam delete-role --role-name LambdaAuditRole --profile demoadmin
 
 aws accessanalyzer delete-analyzer --analyzer-name iam-audit-analyzer --profile demoadmin
-"# Build-Audit-IAM-Resources-in-IAM" 
+
+
